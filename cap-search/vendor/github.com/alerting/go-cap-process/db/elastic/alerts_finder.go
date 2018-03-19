@@ -169,7 +169,7 @@ func (f *AlertsFinder) Find() (*db.AlertsResults, error) {
 
 				if _, ok = infoHit.InnerHits["infos.areas"]; ok {
 					for _, areaHit := range infoHit.InnerHits["infos.areas"].Hits.Hits {
-						ihit.AreaHits = append(ihit.AreaHits, areaHit.Nested.Offset)
+						ihit.AreaHits = append(ihit.AreaHits, areaHit.Nested.Nested.Offset)
 					}
 				}
 
@@ -184,7 +184,7 @@ func (f *AlertsFinder) Find() (*db.AlertsResults, error) {
 }
 
 func (f *AlertsFinder) query(service *elastic.SearchService) *elastic.SearchService {
-	if len(f.alertFields) == 0 && len(f.alertInfoFields) == 0 && len(f.alertInfoTextFields) == 0 {
+	if len(f.alertFields) == 0 && len(f.alertInfoFields) == 0 && len(f.alertInfoTextFields) == 0 && f.coordinates == nil {
 		service = service.Query(elastic.NewMatchAllQuery())
 		return service
 	}

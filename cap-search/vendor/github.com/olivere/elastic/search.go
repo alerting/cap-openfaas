@@ -493,8 +493,9 @@ type SearchHit struct {
 }
 
 type NestedInfo struct {
-	Field  string `json:"field"`
-	Offset int    `json:"offset"`
+	Field  string      `json:"field"`
+	Offset int         `json:"offset"`
+	Nested *NestedInfo `json:"_nested"`
 }
 
 type SearchHitInnerHits struct {
