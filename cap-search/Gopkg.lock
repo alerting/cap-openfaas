@@ -36,7 +36,7 @@
   revision = "d7ef56fc493d6a81d93db6325f632e66d0af1a31"
 
 [[projects]]
-  branch = "dev"
+  branch = "master"
   name = "github.com/alerting/go-cap-process"
   packages = [
     "db",
@@ -45,7 +45,7 @@
     "system/canada-naad",
     "tasks"
   ]
-  revision = "237b72b094978b7b13a4a46ce14964f22cb6efab"
+  revision = "3f8c9f7b2b43b5077743f5f53efa558ab1eac239"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"
@@ -136,8 +136,8 @@
     "config",
     "uritemplates"
   ]
-  revision = "d6362604399c7af560b54f048b4fcfbdd6eff293"
-  version = "v6.1.14"
+  revision = "a9051ca3a94d78a79a8d5684f24c2e2cc9650355"
+  version = "v6.1.15"
 
 [[projects]]
   name = "github.com/opentracing/opentracing-go"
@@ -200,6 +200,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "23d9fb7819f23f62dc3a3f447cc57f6bd1be0bb8ffcc9a4f82daf9f41ff5d57b"
+  inputs-digest = "cb000640b8d224ec978906cecb62f901d81dbd1d6bf33cee9ebb11ea669cdbb5"
   solver-name = "gps-cdcl"
   solver-version = 1

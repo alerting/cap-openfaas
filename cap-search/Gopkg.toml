@@ -20,7 +20,7 @@
 #  version = "2.4.0"
 
 [[constraint]]
-  branch = "dev"
+  branch = "master"
   name = "github.com/alerting/go-cap-process"
 
 [[constraint]]

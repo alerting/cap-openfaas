@@ -7,6 +7,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 
 	"github.com/urfave/cli"
 
@@ -98,6 +99,114 @@ func Handle(req []byte) string {
 
 	if _, ok := query["instruction"]; ok {
 		finder = finder.Instruction(query["instruction"][0])
+	}
+
+	if val, ok := query["effective_gte"]; ok {
+		t, err := time.Parse(time.RFC3339, val[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.EffectiveGte(t)
+	}
+
+	if val, ok := query["effective_gt"]; ok {
+		t, err := time.Parse(time.RFC3339, val[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.EffectiveGt(t)
+	}
+
+	if val, ok := query["effective_lte"]; ok {
+		t, err := time.Parse(time.RFC3339, val[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.EffectiveLte(t)
+	}
+
+	if val, ok := query["effective_lt"]; ok {
+		t, err := time.Parse(time.RFC3339, val[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.EffectiveLt(t)
+	}
+
+	if val, ok := query["expires_gte"]; ok {
+		t, err := time.Parse(time.RFC3339, val[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.ExpiresGte(t)
+	}
+
+	if val, ok := query["expires_gt"]; ok {
+		t, err := time.Parse(time.RFC3339, val[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.ExpiresGt(t)
+	}
+
+	if val, ok := query["expires_lte"]; ok {
+		t, err := time.Parse(time.RFC3339, val[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.ExpiresLte(t)
+	}
+
+	if val, ok := query["expires_lt"]; ok {
+		t, err := time.Parse(time.RFC3339, val[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.ExpiresLt(t)
+	}
+
+	if val, ok := query["onset_gte"]; ok {
+		t, err := time.Parse(time.RFC3339, val[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.OnsetGte(t)
+	}
+
+	if val, ok := query["onset_gt"]; ok {
+		t, err := time.Parse(time.RFC3339, val[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.OnsetGt(t)
+	}
+
+	if val, ok := query["onset_lte"]; ok {
+		t, err := time.Parse(time.RFC3339, val[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.OnsetLte(t)
+	}
+
+	if val, ok := query["onset_lt"]; ok {
+		t, err := time.Parse(time.RFC3339, val[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.OnsetLt(t)
 	}
 
 	if _, ok := query["area"]; ok {
