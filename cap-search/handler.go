@@ -6,9 +6,11 @@ import (
 	"net/url"
 	"os"
 	"strconv"
+	"strings"
 
 	"github.com/urfave/cli"
 
+	"github.com/alerting/go-cap"
 	"github.com/alerting/go-cap-process/db"
 	"github.com/alerting/go-cap-process/tasks"
 )
@@ -44,18 +46,24 @@ func Handle(req []byte) string {
 	}
 
 	// Setup the finder
-	finder := database.NewAlertsFinder()
+	finder := database.NewInfoFinder()
 
 	if _, ok := query["status"]; ok {
-		finder = finder.Status(query["status"][0])
+		var status cap.Status
+		status.UnmarshalString(query["status"][0])
+		finder = finder.Status(status)
 	}
 
 	if _, ok := query["message_type"]; ok {
-		finder = finder.MessageType(query["message_type"][0])
+		var messageType cap.MessageType
+		messageType.UnmarshalString(query["message_type"][0])
+		finder = finder.MessageType(messageType)
 	}
 
 	if _, ok := query["scope"]; ok {
-		finder = finder.Scope(query["scope"][0])
+		var scope cap.Scope
+		scope.UnmarshalString(query["scope"][0])
+		finder = finder.Scope(scope)
 	}
 
 	if _, ok := query["language"]; ok {
@@ -63,15 +71,21 @@ func Handle(req []byte) string {
 	}
 
 	if _, ok := query["certainty"]; ok {
-		finder = finder.Certainty(query["certainty"][0])
+		var certainty cap.Certainty
+		certainty.UnmarshalString(query["certainty"][0])
+		finder = finder.Certainty(certainty)
 	}
 
 	if _, ok := query["urgency"]; ok {
-		finder = finder.Urgency(query["urgency"][0])
+		var urgency cap.Urgency
+		urgency.UnmarshalString(query["urgency"][0])
+		finder = finder.Urgency(urgency)
 	}
 
 	if _, ok := query["severity"]; ok {
-		finder = finder.Severity(query["severity"][0])
+		var severity cap.Severity
+		severity.UnmarshalString(query["severity"][0])
+		finder = finder.Severity(severity)
 	}
 
 	if _, ok := query["headline"]; ok {
@@ -82,26 +96,46 @@ func Handle(req []byte) string {
 		finder = finder.Description(query["description"][0])
 	}
 
+	if _, ok := query["instruction"]; ok {
+		finder = finder.Instruction(query["instruction"][0])
+	}
+
+	if _, ok := query["area"]; ok {
+		finder = finder.Area(query["area"][0])
+	}
+
 	if _, ok := query["point"]; ok {
-		finder = finder.Point(query["point"][0])
+		str := strings.Split(query["point"][0], ",")
+
+		lat, err := strconv.ParseFloat(str[0], 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		lon, err := strconv.ParseFloat(str[1], 64)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.Point(lat, lon)
 	}
 
 	if _, ok := query["from"]; ok {
 		from, err := strconv.Atoi(query["from"][0])
 		if err == nil {
-			finder = finder.From(from)
+			finder = finder.Start(from)
 		}
-	}
-
-	if _, ok := query["sort"]; ok {
-		finder = finder.Sort(query["sort"][0])
 	}
 
 	if _, ok := query["size"]; ok {
 		size, err := strconv.Atoi(query["size"][0])
 		if err == nil {
-			finder = finder.Size(size)
+			finder = finder.Count(size)
 		}
+	}
+
+	if _, ok := query["sort"]; ok {
+		finder = finder.Sort(query["sort"][0])
 	}
 
 	res, err := finder.Find()
