@@ -1,0 +1,13 @@
+provider:
+  name: faas
+  gateway: http://localhost:8080
+
+functions:
+  cap-get:
+    lang: go
+    handler: ./cap-get
+    image: cap-get
+  environment:
+    CAP_DATABASE: elastic
+    CAP_ELASTIC_URL: http://localhost:9200
+    CAP_INDEX: alerts
