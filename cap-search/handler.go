@@ -49,6 +49,15 @@ func Handle(req []byte) string {
 	// Setup the finder
 	finder := database.NewInfoFinder()
 
+	if val, ok := query["superseded"]; ok {
+		superseded, err := strconv.ParseBool(val[0])
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		finder = finder.Superseded(superseded)
+	}
+
 	if _, ok := query["status"]; ok {
 		var status cap.Status
 		status.UnmarshalString(query["status"][0])

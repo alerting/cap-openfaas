@@ -20,8 +20,8 @@
     "v1/tasks",
     "v1/tracing"
   ]
-  revision = "2d6e01ea4f6db22751bc333f9fc91052d5889473"
-  version = "v1.3.2"
+  revision = "a68672c71f3f38352c528847aa47798173783d39"
+  version = "v1.3.3"
 
 [[projects]]
   branch = "master"
@@ -45,7 +45,7 @@
     "system/canada-naad",
     "tasks"
   ]
-  revision = "3f8c9f7b2b43b5077743f5f53efa558ab1eac239"
+  revision = "149ce5974229f3fc59897fa99b4faf1fbab37ad3"
 
 [[projects]]
   name = "github.com/aws/aws-sdk-go"

@@ -15,7 +15,10 @@ type InfoResults struct {
 }
 
 type InfoFinder interface {
+	AlertId(id string) InfoFinder
+
 	// Filter
+	Superseded(superseded bool) InfoFinder
 	Status(status cap.Status) InfoFinder
 	MessageType(messageType cap.MessageType) InfoFinder
 	Scope(scope cap.Scope) InfoFinder

@@ -17,6 +17,10 @@ import (
 	"github.com/aws/aws-sdk-go/service/sqs/sqsiface"
 )
 
+const (
+	maxAWSSQSDelay = time.Minute * 15 // Max supported SQS delay is 15 min: https://docs.aws.amazon.com/AWSSimpleQueueService/latest/APIReference/API_SendMessage.html
+)
+
 // AWSSQSBroker represents a AWS SQS broker
 // There are examples on: https://docs.aws.amazon.com/sdk-for-go/v1/developer-guide/sqs-example-create-queue.html
 type AWSSQSBroker struct {
@@ -145,9 +149,12 @@ func (b *AWSSQSBroker) Publish(signature *tasks.Signature) error {
 	// and is not a fifo queue, set a delay in seconds for the task.
 	if signature.ETA != nil && !strings.HasSuffix(signature.RoutingKey, ".fifo") {
 		now := time.Now().UTC()
-
-		if signature.ETA.After(now) {
-			MsgInput.DelaySeconds = aws.Int64(signature.ETA.Unix() - now.Unix())
+		delay := signature.ETA.Sub(now)
+		if delay > 0 {
+			if delay > maxAWSSQSDelay {
+				return errors.New("Max AWS SQS delay exceeded")
+			}
+			MsgInput.DelaySeconds = aws.Int64(int64(delay.Seconds()))
 		}
 	}
 
@@ -208,10 +215,11 @@ func (b *AWSSQSBroker) consumeOne(delivery *sqs.ReceiveMessageOutput, taskProces
 
 	err := taskProcessor.Process(sig)
 	if err != nil {
-		// Delete message after successfully consuming and processing the message
-		if err := b.deleteOne(delivery); err != nil {
-			log.ERROR.Printf("error when deleting the delivery. the delivery is %v", delivery)
-		}
+		return err
+	}
+	// Delete message after successfully consuming and processing the message
+	if err = b.deleteOne(delivery); err != nil {
+		log.ERROR.Printf("error when deleting the delivery. the delivery is %v", delivery)
 	}
 	return err
 }
@@ -238,12 +246,14 @@ func (b *AWSSQSBroker) defaultQueueURL() *string {
 // receiveMessage is a method receives a message from specified queue url
 func (b *AWSSQSBroker) receiveMessage(qURL *string) (*sqs.ReceiveMessageOutput, error) {
 	var waitTimeSeconds int
+	var visibilityTimeout *int
 	if b.cnf.SQS != nil {
 		waitTimeSeconds = b.cnf.SQS.WaitTimeSeconds
+		visibilityTimeout = b.cnf.SQS.VisibilityTimeout
 	} else {
 		waitTimeSeconds = 0
 	}
-	result, err := b.service.ReceiveMessage(&sqs.ReceiveMessageInput{
+	input := &sqs.ReceiveMessageInput{
 		AttributeNames: []*string{
 			aws.String(sqs.MessageSystemAttributeNameSentTimestamp),
 		},
@@ -252,9 +262,12 @@ func (b *AWSSQSBroker) receiveMessage(qURL *string) (*sqs.ReceiveMessageOutput, 
 		},
 		QueueUrl:            qURL,
 		MaxNumberOfMessages: aws.Int64(1),
-		VisibilityTimeout:   aws.Int64(int64(b.cnf.ResultsExpireIn)), // 10 hours
 		WaitTimeSeconds:     aws.Int64(int64(waitTimeSeconds)),
-	})
+	}
+	if visibilityTimeout != nil {
+		input.VisibilityTimeout = aws.Int64(int64(*visibilityTimeout))
+	}
+	result, err := b.service.ReceiveMessage(input)
 	if err != nil {
 		return nil, err
 	}
